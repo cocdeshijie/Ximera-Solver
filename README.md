@@ -6,3 +6,10 @@
 2. Run main.py
 3. Navigate tothe first page of Ximera page that need to be done
 4. hit ENTER in terminal
+
+-------
+
+TODO
+- fix repeat loops
+- better element finding
+- pause options
