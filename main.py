@@ -23,12 +23,16 @@ driver.get("https://ximera.osu.edu/")
 
 input("Please navigate to the first Ximera page you want to solve and press enter...")
 
-sleep(1)
-
+sleep(0.5)
 driver.switch_to.window(driver.window_handles[0])
+sleep(0.5)
 
-# find all questions
+
 def parse_questions() -> dict:
+    """
+    Parses the questions on the page and returns a dictionary of the question type and the question element
+    :return:
+    """
     parsed_questions = []
     # Dropdown questions
     dropdown_questions = driver.find_elements(By.XPATH, "//div[contains(@class, 'dropdown word-choice btn-ximera-submit')]")
@@ -59,21 +63,17 @@ def do_questions() -> None:
                 solve = globals()[solver]
                 try:
                     solve(question, driver)
-                except Exception as e:
-                    print(f"Error: {e}")
-            sleep(3)
+                except Exception:
+                    pass
+            sleep(2)
             progress = driver.find_element(By.XPATH, "//div[contains(@class, 'progress-bar bg-success h-100')]").get_attribute("aria-valuenow")
+            sleep(1)
         next_button = driver.find_element(By.XPATH, "//li[contains(@id, 'next-activity')]")
         if "disabled" in next_button.get_attribute("class"):
             next_page = False
         else:
             next_button.click()
-            sleep(1)
-
+            sleep(0.5)
 
 
 do_questions()
-
-
-
-

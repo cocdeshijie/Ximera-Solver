@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.keys import Keys
 import sympy
-from sympy.parsing.latex import parse_latex
+from pylatexenc.latex2text import LatexNodes2Text
 from time import sleep
 import re
 
@@ -47,21 +47,55 @@ def fill_in_solver(element, driver) -> None:
     # switch back to main tab
     driver.switch_to.window(driver.window_handles[0])
 
-    pattern = r'\\answer\s*{([^{}]*(?:{(?:[^{}]*(?:{[^{}]*})*[^{}]*)*})*[^{}]*)}'
-    answer_matches = re.findall(pattern, answer_text)
+    answer_matches = extract_answer_brackets(answer_text)
 
-    answers = [tex_to_unicode(answer) for answer in answer_matches]
+    answers = [tex_to_string(answer) for answer in answer_matches]
+
     for index, input_area in enumerate(input_areas):
         input_area.clear()
         input_area.send_keys(answers[index])
         input_area.send_keys(u'\ue007')
 
 
-def tex_to_unicode(tex_expression) -> str:
-    expr = parse_latex(tex_expression)
-    if '|' in tex_expression:
-        expr = sympy.pretty(expr, use_unicode=False)
-    return str(expr)
+def tex_to_string(tex_expression) -> str:
+    result = LatexNodes2Text().latex_to_text(latex=tex_expression)
+    result = result.replace("√", "sqrt")
+    result = result.replace("cos", " cos")
+    result = result.replace("sin", " sin")
+    result = result.replace("tan", " tan")
+    result = result.replace("cot", " cot")
+    result = result.replace("sec", " sec")
+    result = result.replace("csc", " csc")
+    return str(result)
+
+
+def extract_answer_brackets(text):
+    result = []
+    stack = []
+    index = 0
+
+    while index < len(text):
+        if text[index:index + 8] == '\\answer ':
+            index += 8
+            if text[index] == '{':
+                stack.append(index)
+                level = 1
+                index += 1
+                start = index
+
+                while index < len(text) and level > 0:
+                    if text[index] == '{':
+                        level += 1
+                    elif text[index] == '}':
+                        level -= 1
+                    index += 1
+
+                if level == 0:
+                    result.append(text[start:index - 1])
+        else:
+            index += 1
+
+    return result
 
 
 def multiple_choice_solver(element, driver) -> None:
