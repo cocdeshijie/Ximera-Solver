@@ -55,6 +55,21 @@ def parse_questions() -> dict:
 def do_questions() -> None:
     next_page = True
     while next_page:
+        # make all hidden elements visible
+        css_style = '''
+            div {
+                visibility: visible !important;
+            }
+        '''
+        driver.execute_script("""
+            (function(css) {
+                const style = document.createElement('style');
+                style.type = 'text/css';
+                style.innerHTML = css;
+                document.head.appendChild(style);
+            })(arguments[0]);
+        """, css_style)
+        sleep(0.5)
         progress = driver.find_element(By.XPATH, "//div[contains(@class, 'progress-bar bg-success h-100')]").get_attribute("aria-valuenow")
         while int(progress) < 100:
             parsed_questions = parse_questions()
