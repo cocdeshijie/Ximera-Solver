@@ -38,9 +38,11 @@ def extract_answer_brackets(text):
     stack = []
     index = 0
 
+    text = text.replace('\\answer ', '\\answer')
+
     while index < len(text):
-        if text[index:index + 8] == '\\answer ':
-            index += 8
+        if text[index:index + 7] == '\\answer':
+            index += 7
             if text[index] == '{':
                 stack.append(index)
                 level = 1
@@ -62,8 +64,9 @@ def extract_answer_brackets(text):
     return result
 
 input_string = r"""
-\answer {\frac {2+3m}{4m^2-3m}}
-
+  F(x,y) = F(x,mx) &= \frac{2x^2\left(\answer{mx}\right)}{3x^4+4\left(\answer{mx}\right)^2} \\
+  &= \frac{\answer{2m} \cdot x^3 }{3x^4 + \answer{4m^2}\cdot x^2} \\
+  &= \frac{2mx}{3x^2+4m^2}
  """
 def modify_latex(latex_str):
     # Define the regex pattern

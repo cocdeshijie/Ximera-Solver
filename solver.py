@@ -72,14 +72,16 @@ def tex_to_string(tex_expression) -> str:
     return str(result)
 
 
-def extract_answer_brackets(text) -> list:
+def extract_answer_brackets(text):
     result = []
     stack = []
     index = 0
 
+    text = text.replace('\\answer ', '\\answer')
+
     while index < len(text):
-        if text[index:index + 8] == '\\answer ':
-            index += 8
+        if text[index:index + 7] == '\\answer':
+            index += 7
             if text[index] == '{':
                 stack.append(index)
                 level = 1
