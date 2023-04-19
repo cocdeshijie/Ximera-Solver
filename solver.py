@@ -5,7 +5,7 @@ from selenium.webdriver.common.keys import Keys
 import sympy
 from pylatexenc.latex2text import LatexNodes2Text
 from time import sleep
-import re
+import regex
 
 
 def dropdown_solver(element, driver) -> None:
@@ -49,7 +49,9 @@ def fill_in_solver(element, driver) -> None:
 
     answer_matches = extract_answer_brackets(answer_text)
 
-    answers = [tex_to_string(answer) for answer in answer_matches]
+    cleaned_answers = clean_answers(answer_matches)
+
+    answers = [tex_to_string(answer) for answer in cleaned_answers]
 
     for index, input_area in enumerate(input_areas):
         input_area.clear()
@@ -58,6 +60,7 @@ def fill_in_solver(element, driver) -> None:
 
 
 def tex_to_string(tex_expression) -> str:
+
     result = LatexNodes2Text().latex_to_text(latex=tex_expression)
     result = result.replace("√", "sqrt")
     result = result.replace("cos", " cos")
@@ -69,7 +72,7 @@ def tex_to_string(tex_expression) -> str:
     return str(result)
 
 
-def extract_answer_brackets(text):
+def extract_answer_brackets(text) -> list:
     result = []
     stack = []
     index = 0
@@ -95,6 +98,16 @@ def extract_answer_brackets(text):
         else:
             index += 1
 
+    return result
+
+
+def clean_answers(answers) -> list:
+    result = []
+    for answer in answers:
+        # Define the regex pattern
+        pattern = r'(?<!\\[a-zA-Z]+)\{([^\{\}]+)\}'
+        # Replace the matched pattern with the desired format
+        result.append(regex.sub(pattern, r'{(\1)}', answer))
     return result
 
 

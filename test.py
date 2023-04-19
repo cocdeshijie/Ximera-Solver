@@ -62,13 +62,29 @@ def extract_answer_brackets(text):
     return result
 
 input_string = r"""
-\answer {\sqrt {e^{2t}+\cos ^{2}(t)}}
+\answer {\frac {2+3m}{4m^2-3m}}
+
  """
+def modify_latex(latex_str):
+    # Define the regex pattern
+    import regex
+    pattern = r'(?<!\\[a-zA-Z]+)\{([^\{\}]+)\}'
+    # Replace the matched pattern with the desired format
+    return regex.sub(pattern, r'{(\1)}', latex_str)
+
+
+
 
 matches = extract_answer_brackets(input_string)
+print(matches)
 
+modified = modify_latex(matches[0])
+print(modify_latex(matches[0]))
 
 from pylatexenc.latex2text import LatexNodes2Text
 
+
 for match in matches:
-    print(LatexNodes2Text().latex_to_text(latex=match))
+    answer = (LatexNodes2Text().latex_to_text(latex=modified))
+    print(answer)
+
